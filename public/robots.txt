@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /dashboard.js
+Disallow: /dist/
+
+Sitemap: https://www.cinedhoom.com/sitemap.xml
+
+# CineDhoom — Movie Reviews, OTT Release Dates & Streaming Guide
+# Contact: dmca@cinedhoom.com

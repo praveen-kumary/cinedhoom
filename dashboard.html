@@ -1,0 +1,610 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CINEDHOOM — Admin Management Studio & Movie Dashboard</title>
+  <meta name="description" content="Manage movie catalog, OTT streaming dates, SEO tags, trailers, and reviews on CINEDHOOM Admin Studio." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Premium Typography: Syne + Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/dashboard.css" />
+</head>
+<body class="dashboard-body">
+
+  <!-- ═══════════ DASHBOARD HEADER ═══════════ -->
+  <header class="dash-header">
+    <div class="dash-container dash-header-inner">
+      <div class="dash-brand-wrap">
+        <a href="/" class="brand dash-brand" aria-label="CINEDHOOM Homepage">
+          <span class="brand-mark">CineDhoom</span>
+          <span class="brand-tag">Entertainment Updates</span>
+        </a>
+        <span class="dash-badge">Admin Studio</span>
+      </div>
+
+      <div class="dash-header-actions">
+        <a href="/" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <span>View Public Site</span>
+        </a>
+        <button type="button" class="btn btn-primary" id="btn-open-add-modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>+ Add New Movie</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <div class="dash-container">
+      <!-- ═══════════ METRIC STATS CARDS ═══════════ -->
+      <section class="dash-stats-grid" aria-label="Catalog statistics">
+        <div class="stat-card">
+          <div class="stat-icon-wrap icon-gold">🎞️</div>
+          <div class="stat-data">
+            <span class="stat-title">Total Movies</span>
+            <strong class="stat-value" id="stat-total-movies">0</strong>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrap icon-orange">🔥</div>
+          <div class="stat-data">
+            <span class="stat-title">Telugu Cinema</span>
+            <strong class="stat-value" id="stat-telugu-movies">0</strong>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrap icon-blue">⚡</div>
+          <div class="stat-data">
+            <span class="stat-title">Tamil Cinema</span>
+            <strong class="stat-value" id="stat-tamil-movies">0</strong>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrap icon-purple">📺</div>
+          <div class="stat-data">
+            <span class="stat-title">OTT Premieres</span>
+            <strong class="stat-value" id="stat-ott-movies">0</strong>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrap icon-green">⭐</div>
+          <div class="stat-data">
+            <span class="stat-title">Avg IMDb Rating</span>
+            <strong class="stat-value" id="stat-avg-rating">0.0</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ CONTROLS & FILTER TOOLBAR ═══════════ -->
+      <section class="dash-controls-card">
+        <div class="dash-search-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-ctrl-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="dash-search-input" class="dash-input" placeholder="Search by title, star cast, director..." />
+        </div>
+
+        <div class="dash-filters-group">
+          <select id="filter-lang-select" class="dash-select" aria-label="Filter by language">
+            <option value="all">All Languages</option>
+            <option value="Telugu">Telugu</option>
+            <option value="Tamil">Tamil</option>
+            <option value="Kannada">Kannada</option>
+            <option value="Bollywood">Bollywood (Hindi)</option>
+            <option value="Malayalam">Malayalam</option>
+            <option value="Hollywood">Hollywood</option>
+          </select>
+
+          <select id="filter-genre-select" class="dash-select" aria-label="Filter by genre">
+            <option value="all">All Genres</option>
+            <option value="Action">Action</option>
+            <option value="Thriller">Thriller</option>
+            <option value="Drama">Drama</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Romance">Romance</option>
+            <option value="Crime">Crime</option>
+            <option value="Horror">Horror</option>
+            <option value="Fantasy">Fantasy</option>
+            <option value="Sci-Fi">Sci-Fi</option>
+          </select>
+
+          <button type="button" class="btn btn-ghost" id="btn-reset-defaults" title="Restore sample movie database">
+            ↺ Reset Defaults
+          </button>
+        </div>
+      </section>
+
+      <!-- ═══════════ AI & CLAUDE / TMDB MOVIE SYNC PIPELINE ═══════════ -->
+      <section class="dash-sync-card">
+        <div class="dash-sync-header">
+          <div class="sync-header-title-wrap">
+            <span class="sync-icon">🤖</span>
+            <div>
+              <h2 class="dash-sync-title">Claude AI &amp; TMDB Auto-Fetch Release Pipeline</h2>
+              <p class="dash-sync-subtitle">Automatically scan, fetch and ingest all new releasing movies with verified OTT status, cast, director, synopsis, and HD trailers.</p>
+            </div>
+          </div>
+          <div class="sync-actions-group">
+            <button type="button" class="btn btn-outline" id="btn-export-json">
+              <span>📥 Export Catalog JSON</span>
+            </button>
+            <label class="btn btn-outline" style="cursor: pointer;">
+              <span>📤 Import JSON</span>
+              <input type="file" id="input-import-json" accept=".json" style="display: none;" />
+            </label>
+          </div>
+        </div>
+
+        <div class="sync-body-grid">
+          <!-- Left: AI / Claude Scanner -->
+          <div class="sync-panel-box">
+            <div class="sync-panel-title">
+              <span class="badge-ai">CLAUDE AI</span>
+              <h3>AI Movie Release Scanner</h3>
+            </div>
+            <p class="sync-desc">Fetch and generate complete, verified movie profiles (plot, director, streaming rights, cast, trailer ID) for any new upcoming or released Indian films.</p>
+            
+            <div class="dash-form-group">
+              <label for="ai-movie-query" class="dash-label">Target Movie Title / Releasing Topic</label>
+              <input type="text" id="ai-movie-query" class="dash-input" placeholder="e.g. Spirit Prabhas, Raja Saab 2025, Toxic Yash..." />
+            </div>
+
+            <div class="form-grid-2">
+              <div class="dash-form-group">
+                <label for="ai-language-select" class="dash-label">Language</label>
+                <select id="ai-language-select" class="dash-select">
+                  <option value="Telugu">Telugu</option>
+                  <option value="Tamil">Tamil</option>
+                  <option value="Bollywood">Bollywood</option>
+                  <option value="Malayalam">Malayalam</option>
+                  <option value="Kannada">Kannada</option>
+                  <option value="Hollywood">Hollywood</option>
+                  <option value="TV Shows">TV Shows</option>
+                </select>
+              </div>
+              <div class="dash-form-group">
+                <label for="ai-api-key" class="dash-label">Claude API Key (Optional)</label>
+                <input type="password" id="ai-api-key" class="dash-input" placeholder="sk-ant-api03-... (or use built-in engine)" />
+              </div>
+            </div>
+
+            <div class="sync-btn-row">
+              <button type="button" class="btn btn-primary" id="btn-scan-ai">
+                <span>⚡ Scan &amp; Generate with AI</span>
+              </button>
+              <button type="button" class="btn btn-secondary" id="btn-bulk-scan-2026">
+                <span>🔥 Scan 2026 Upcoming Releases</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: TMDB Live Discover -->
+          <div class="sync-panel-box">
+            <div class="sync-panel-title">
+              <span class="badge-tmdb">TMDB LIVE</span>
+              <h3>TheMovieDB Official Sync</h3>
+            </div>
+            <p class="sync-desc">Fetch verified theatrical &amp; digital release dates, HD posters and trailers directly from TMDB catalog.</p>
+
+            <div class="form-grid-2">
+              <div class="dash-form-group">
+                <label for="tmdb-lang-select" class="dash-label">Language</label>
+                <select id="tmdb-lang-select" class="dash-select">
+                  <option value="te">Telugu (te)</option>
+                  <option value="ta">Tamil (ta)</option>
+                  <option value="hi">Hindi (hi)</option>
+                  <option value="ml">Malayalam (ml)</option>
+                  <option value="kn">Kannada (kn)</option>
+                  <option value="en">Hollywood (en)</option>
+                </select>
+              </div>
+              <div class="dash-form-group">
+                <label for="tmdb-year-select" class="dash-label">Release Year</label>
+                <select id="tmdb-year-select" class="dash-select">
+                  <option value="2026">2026 (Upcoming)</option>
+                  <option value="2025">2025</option>
+                  <option value="2024" selected>2024</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="dash-form-group">
+              <label for="tmdb-api-key" class="dash-label">TMDB v3 API Key (Optional)</label>
+              <input type="text" id="tmdb-api-key" class="dash-input" placeholder="Paste TMDB API Key (or use curated feed)" />
+            </div>
+
+            <div class="sync-btn-row">
+              <button type="button" class="btn btn-primary" id="btn-sync-tmdb">
+                <span>📡 Fetch TMDB Releases</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview Results Container -->
+        <div class="sync-results-container" id="sync-results-box" hidden>
+          <div class="sync-results-header">
+            <h4>Generated / Fetched Releases (<span id="sync-results-count">0</span>)</h4>
+            <button type="button" class="btn btn-accent btn-sm" id="btn-import-all-results">
+              <span>+ Import All to Live Site</span>
+            </button>
+          </div>
+          <div class="sync-results-grid" id="sync-results-grid"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════ AD SLOTS & MONETIZATION MANAGEMENT ═══════════ -->
+      <section class="dash-ads-card">
+        <div class="dash-ads-header">
+          <div class="ads-header-title-wrap">
+            <span class="ads-icon">📢</span>
+            <div>
+              <h2 class="dash-ads-title">Ad Slots & Monetization Manager</h2>
+              <p class="dash-ads-subtitle">Configure header banner ads, sidebar promo boxes, and the 5-10s popup interstitial video ad on Watch Now clicks.</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" id="btn-save-ads">
+            <span>💾 Save Ad Slots</span>
+          </button>
+        </div>
+
+        <form id="ads-config-form" class="ads-config-grid">
+          <!-- Slot 1: Header Leaderboard Ad -->
+          <div class="ad-config-box">
+            <div class="ad-config-box-header">
+              <div class="ad-slot-title-wrap">
+                <span class="ad-slot-number">Slot 1</span>
+                <h3>Header Banner Ad</h3>
+              </div>
+              <label class="switch-wrap">
+                <input type="checkbox" id="ad-header-enabled" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="ad-fields-list">
+              <div class="dash-form-group">
+                <label for="ad-header-title" class="dash-label">Ad Headline / Title</label>
+                <input type="text" id="ad-header-title" class="dash-input" placeholder="e.g. Disney+ Hotstar & Netflix Mega OTT Pass" />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-header-sponsor" class="dash-label">Sponsor Label</label>
+                <input type="text" id="ad-header-sponsor" class="dash-input" placeholder="e.g. Sponsored Partner Ad" />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-header-img" class="dash-label">Banner Image URL (970x120 or 728x90)</label>
+                <input type="url" id="ad-header-img" class="dash-input" placeholder="https://..." />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-header-link" class="dash-label">Target Destination URL</label>
+                <input type="url" id="ad-header-link" class="dash-input" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+
+          <!-- Slot 2: In-Content Sponsor Banner Ad -->
+          <div class="ad-config-box">
+            <div class="ad-config-box-header">
+              <div class="ad-slot-title-wrap">
+                <span class="ad-slot-number">Slot 2</span>
+                <h3>In-Content Banner Ad</h3>
+              </div>
+              <label class="switch-wrap">
+                <input type="checkbox" id="ad-incontent-enabled" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="ad-fields-list">
+              <div class="dash-form-group">
+                <label for="ad-incontent-title" class="dash-label">Ad Headline / Title</label>
+                <input type="text" id="ad-incontent-title" class="dash-input" placeholder="e.g. Watch Today’s Releases at 60FPS with Fiber Broadband" />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-incontent-sponsor" class="dash-label">Sponsor Label</label>
+                <input type="text" id="ad-incontent-sponsor" class="dash-input" placeholder="e.g. High-Speed Partner" />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-incontent-img" class="dash-label">Banner Image URL (970x180 or 728x90)</label>
+                <input type="url" id="ad-incontent-img" class="dash-input" placeholder="https://..." />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-incontent-link" class="dash-label">Target Destination URL</label>
+                <input type="url" id="ad-incontent-link" class="dash-input" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+
+          <!-- Slot 3: Sidebar Promo Ad -->
+          <div class="ad-config-box">
+            <div class="ad-config-box-header">
+              <div class="ad-slot-title-wrap">
+                <span class="ad-slot-number">Slot 3</span>
+                <h3>Sidebar Box Ad</h3>
+              </div>
+              <label class="switch-wrap">
+                <input type="checkbox" id="ad-sidebar-enabled" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="ad-fields-list">
+              <div class="dash-form-group">
+                <label for="ad-sidebar-title" class="dash-label">Ad Headline / Title</label>
+                <input type="text" id="ad-sidebar-title" class="dash-input" placeholder="e.g. Fast 10Gbps Ultra-Low Ping VPN" />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-sidebar-sponsor" class="dash-label">Sponsor Label</label>
+                <input type="text" id="ad-sidebar-sponsor" class="dash-input" placeholder="e.g. Official Partner" />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-sidebar-img" class="dash-label">Box Image URL (300x250)</label>
+                <input type="url" id="ad-sidebar-img" class="dash-input" placeholder="https://..." />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-sidebar-link" class="dash-label">Target Destination URL</label>
+                <input type="url" id="ad-sidebar-link" class="dash-input" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+
+          <!-- Slot 4: Watch Now Interstitial Popup Ad -->
+          <div class="ad-config-box ad-config-box-highlight">
+            <div class="ad-config-box-header">
+              <div class="ad-slot-title-wrap">
+                <span class="ad-slot-number highlight">Slot 4</span>
+                <h3>Watch Now Popup Interstitial Ad</h3>
+              </div>
+              <label class="switch-wrap">
+                <input type="checkbox" id="ad-popup-enabled" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="ad-fields-list">
+              <div class="form-grid-2">
+                <div class="dash-form-group">
+                  <label for="ad-popup-duration" class="dash-label">Countdown Duration</label>
+                  <select id="ad-popup-duration" class="dash-select">
+                    <option value="5">5 Seconds (Fast)</option>
+                    <option value="6" selected>6 Seconds (Recommended)</option>
+                    <option value="8">8 Seconds</option>
+                    <option value="10">10 Seconds (Standard OTT)</option>
+                  </select>
+                </div>
+                <div class="dash-form-group">
+                  <label for="ad-popup-sponsor" class="dash-label">Sponsor Tag</label>
+                  <input type="text" id="ad-popup-sponsor" class="dash-input" placeholder="e.g. Verified OTT Sponsor" />
+                </div>
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-popup-title" class="dash-label">Status / Loading Message</label>
+                <input type="text" id="ad-popup-title" class="dash-input" placeholder="e.g. Verifying High-Speed Stream Server (4K UHD)..." />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-popup-img" class="dash-label">Ad Creative Image URL (640x340)</label>
+                <input type="url" id="ad-popup-img" class="dash-input" placeholder="https://..." />
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-popup-link" class="dash-label">Sponsor Clickout Link</label>
+                <input type="url" id="ad-popup-link" class="dash-input" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+
+          <!-- Slot 5: Direct Movie Card-Click Monetization -->
+          <div class="ad-config-box ad-config-box-highlight">
+            <div class="ad-config-box-header">
+              <div class="ad-slot-title-wrap">
+                <span class="ad-slot-number highlight">Slot 5</span>
+                <h3>Direct Card-Click Ad Monetization (1-2 Clicks)</h3>
+              </div>
+              <label class="switch-wrap">
+                <input type="checkbox" id="ad-cardclick-enabled" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="ad-fields-list">
+              <div class="form-grid-2">
+                <div class="dash-form-group">
+                  <label for="ad-cardclick-mode" class="dash-label">Monetization Trigger Strategy</label>
+                  <select id="ad-cardclick-mode" class="dash-select">
+                    <option value="dual" selected>⚡ Instant Dual: 1st Click opens Ad tab + Movie (Recommended)</option>
+                    <option value="twoclick">🔒 Two-Click Gateway: 1st click opens Ad, 2nd opens Movie</option>
+                    <option value="every2nd">🔄 Every 2nd Click: Alternates between Movie &amp; Ad</option>
+                    <option value="first_only">🎯 First Click Only: 1st card click of user session</option>
+                  </select>
+                </div>
+                <div class="dash-form-group">
+                  <label for="ad-cardclick-sponsor" class="dash-label">Sponsor Partner Tag</label>
+                  <input type="text" id="ad-cardclick-sponsor" class="dash-input" placeholder="e.g. Official OTT Partner Offer" />
+                </div>
+              </div>
+              <div class="dash-form-group">
+                <label for="ad-cardclick-link" class="dash-label">Target Ad / Smartlink / Sponsor URL</label>
+                <input type="url" id="ad-cardclick-link" class="dash-input" placeholder="https://..." />
+              </div>
+              <div class="dash-form-group" style="margin-top: 0.25rem;">
+                <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: var(--color-text-muted); cursor: pointer;">
+                  <input type="checkbox" id="ad-cardclick-toast" checked style="accent-color: var(--color-accent); width: 16px; height: 16px;" />
+                  <span>Display floating confirmation pill when sponsored gateway is activated</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- ═══════════ MOVIES DATA TABLE ═══════════ -->
+      <section class="dash-table-card">
+        <div class="dash-table-header">
+          <h2 class="dash-table-title">Movie Catalog Management</h2>
+          <span class="dash-table-count" id="table-display-count">Showing 0 movies</span>
+        </div>
+
+        <div class="dash-table-responsive">
+          <table class="dash-table" id="movies-table">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 50px;">ID</th>
+                <th scope="col" style="width: 80px;">Poster</th>
+                <th scope="col">Movie Title & Year</th>
+                <th scope="col">Language</th>
+                <th scope="col">Genre</th>
+                <th scope="col">Rating</th>
+                <th scope="col">OTT Partner</th>
+                <th scope="col">Theatrical Date</th>
+                <th scope="col" style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="movies-table-body">
+              <!-- Dynamically populated via dashboard.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ═══════════ ADD / EDIT MOVIE MODAL ═══════════ -->
+  <dialog class="dash-modal" id="movie-modal" aria-labelledby="modal-title">
+    <div class="dash-modal-dialog">
+      <div class="dash-modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🎬</span>
+          <h2 id="modal-title" class="dash-modal-title">Add New Movie</h2>
+        </div>
+        <button type="button" class="dash-modal-close" id="btn-close-modal" aria-label="Close modal">✕</button>
+      </div>
+
+      <form id="movie-form" class="dash-modal-form">
+        <input type="hidden" id="form-movie-id" value="" />
+
+        <div class="form-grid-2">
+          <!-- Title -->
+          <div class="dash-form-group col-span-2">
+            <label for="form-title" class="dash-label">Movie Title <span class="required">*</span></label>
+            <input type="text" id="form-title" class="dash-input" placeholder="e.g. Devara: Part 2" required />
+          </div>
+
+          <!-- Year -->
+          <div class="dash-form-group">
+            <label for="form-year" class="dash-label">Release Year <span class="required">*</span></label>
+            <input type="number" id="form-year" class="dash-input" min="1990" max="2035" value="2026" required />
+          </div>
+
+          <!-- Rating -->
+          <div class="dash-form-group">
+            <label for="form-rating" class="dash-label">IMDb Rating (1.0 - 10.0)</label>
+            <input type="number" id="form-rating" class="dash-input" min="1" max="10" step="0.1" value="8.0" />
+          </div>
+
+          <!-- Language -->
+          <div class="dash-form-group">
+            <label for="form-language" class="dash-label">Language <span class="required">*</span></label>
+            <select id="form-language" class="dash-select" required>
+              <option value="Telugu">Telugu</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Kannada">Kannada</option>
+              <option value="Bollywood">Bollywood (Hindi)</option>
+              <option value="Malayalam">Malayalam</option>
+              <option value="Hollywood">Hollywood</option>
+            </select>
+          </div>
+
+          <!-- Genre -->
+          <div class="dash-form-group">
+            <label for="form-genre" class="dash-label">Primary Genre <span class="required">*</span></label>
+            <select id="form-genre" class="dash-select" required>
+              <option value="Action">Action</option>
+              <option value="Thriller">Thriller</option>
+              <option value="Drama">Drama</option>
+              <option value="Comedy">Comedy</option>
+              <option value="Romance">Romance</option>
+              <option value="Crime">Crime</option>
+              <option value="Horror">Horror</option>
+              <option value="Fantasy">Fantasy</option>
+              <option value="Sci-Fi">Sci-Fi</option>
+            </select>
+          </div>
+
+          <!-- Runtime -->
+          <div class="dash-form-group">
+            <label for="form-runtime" class="dash-label">Runtime</label>
+            <input type="text" id="form-runtime" class="dash-input" placeholder="e.g. 158 min" value="150 min" />
+          </div>
+
+          <!-- Theatrical Release Date -->
+          <div class="dash-form-group">
+            <label for="form-release-date" class="dash-label">Theatrical Release Date</label>
+            <input type="date" id="form-release-date" class="dash-input" />
+          </div>
+
+          <!-- OTT Platform -->
+          <div class="dash-form-group">
+            <label for="form-ott-platform" class="dash-label">OTT Platform</label>
+            <select id="form-ott-platform" class="dash-select">
+              <option value="Netflix">Netflix</option>
+              <option value="Amazon Prime Video">Amazon Prime Video</option>
+              <option value="Disney+ Hotstar">Disney+ Hotstar</option>
+              <option value="Aha Video">Aha Video</option>
+              <option value="ZEE5">ZEE5</option>
+              <option value="SonyLIV">SonyLIV</option>
+              <option value="JioCinema">JioCinema</option>
+            </select>
+          </div>
+
+          <!-- OTT Date -->
+          <div class="dash-form-group">
+            <label for="form-ott-date" class="dash-label">OTT Streaming Date</label>
+            <input type="date" id="form-ott-date" class="dash-input" />
+          </div>
+
+          <!-- Director -->
+          <div class="dash-form-group">
+            <label for="form-director" class="dash-label">Director</label>
+            <input type="text" id="form-director" class="dash-input" placeholder="e.g. Koratala Siva" />
+          </div>
+
+          <!-- YouTube Trailer ID -->
+          <div class="dash-form-group">
+            <label for="form-trailer-id" class="dash-label">YouTube Trailer Video ID</label>
+            <input type="text" id="form-trailer-id" class="dash-input" placeholder="e.g. dQw4w9WgXcQ" value="dQw4w9WgXcQ" />
+          </div>
+
+          <!-- Cast -->
+          <div class="dash-form-group col-span-2">
+            <label for="form-cast" class="dash-label">Lead Cast (comma separated)</label>
+            <input type="text" id="form-cast" class="dash-input" placeholder="e.g. Jr NTR, Janhvi Kapoor, Saif Ali Khan" />
+          </div>
+
+          <!-- Synopsis -->
+          <div class="dash-form-group col-span-2">
+            <label for="form-synopsis" class="dash-label">Movie Synopsis & Storyline</label>
+            <textarea id="form-synopsis" class="dash-textarea" rows="4" placeholder="Write a detailed plot overview and synopsis for visitors and SEO bots..."></textarea>
+          </div>
+        </div>
+
+        <div class="dash-modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-form">Save Movie Entry</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- ═══════════ TOAST NOTIFICATION ═══════════ -->
+  <div class="dash-toast" id="dash-toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="/dashboard.js"></script>
+</body>
+</html>
